@@ -1,0 +1,16 @@
+{
+    "name": "cloudbase-push",
+    "version": "1.0.0",
+    "description": "call push server",
+    "main": "index.js",
+    "scripts": {},
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.16.4",
+        "request": "^2.88.2"
+    },
+    "devDependencies": {
+        "eslint": "^9.18.0"
+    }
+}
