@@ -99,7 +99,7 @@ function sendmess(appid, mess) {
             url: `http://api.weixin.qq.com/cgi-bin/message/custom/send?from_appid=${appid}`,
             body: JSON.stringify(mess),
             headers: {
-                'Content-Type': 'application/json; charset=gbk'
+                'Content-Type': 'application/json; charset=utf-8'
             }
         }, function (error, response) {
             if (error) {
