@@ -1,3 +1,4 @@
+
 const express = require('express')
 const request = require('request')
 
@@ -96,7 +97,10 @@ function sendmess(appid, mess) {
         request({
             method: 'POST',
             url: `http://api.weixin.qq.com/cgi-bin/message/custom/send?from_appid=${appid}`,
-            body: JSON.stringify(mess)
+            body: JSON.stringify(mess),
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8'
+            }
         }, function (error, response) {
             if (error) {
                 console.log('½Ó¿Ú·µ»Ø´íÎó', error)
