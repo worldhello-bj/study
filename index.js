@@ -24,16 +24,10 @@ app.all('/', async (req, res) => {
             })
         }
 
-        // 调用 Python 脚本进行内容分类
-        const contents = [Content]
-        exec(`python categorize.py '${JSON.stringify(contents)}'`, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`执行错误: ${error}`)
-                return
-            }
-            console.log(`stdout: ${stdout}`)
-            console.error(`stderr: ${stderr}`)
-        })
+        const contents = [Content];
+        const categorizedContents = categorizeContent(contents);
+        saveToFile(categorizedContents, 'categorized_contents.json');
+        console.log("分类结果已保存到 categorized_contents.json 文件中");
 
         res.send('success')
     } else {
