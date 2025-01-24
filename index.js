@@ -1,5 +1,5 @@
 const express = require('express')
-const request = require('request')
+const request = require('request-promise-native') // 使用request-promise-native替代request
 const app = express()
 
 // 强制指定请求体编码
@@ -78,8 +78,8 @@ app.all('/', async (req, res) => {
 })
 
 // 发送消息函数添加编码处理
-function sendmess(appid, mess) {
-    return new Promise((resolve, reject) => {
+async function sendmess(appid, mess) {
+    try {
         const options = {
             method: 'POST',
             url: `http://api.weixin.qq.com/cgi-bin/message/custom/send?from_appid=${appid}`,
@@ -89,26 +89,25 @@ function sendmess(appid, mess) {
             body: JSON.stringify(mess, (key, value) => {
                 // 处理特殊字符编码
                 return typeof value === 'string' ?
-                    value.replace(/[\u007F-\uFFFF]/g, chr => '\\u' + ('0000' + chr.charCodeAt(0).toString(16)).substr(-4))
+                    value.replace(/[\u007F-\uFFFF]/g, chr => '\\u' + ('0000' + chr.charCodeAt(0).toString(16)).slice(-4))
                     : value
             })
         }
 
-        request(options, (error, response) => {
-            if (error) {
-                console.error('API请求失败:', error)
-                reject(error)
-            } else {
-                console.log('微信API响应:', {
-                    status: response.statusCode,
-                    body: response.body.toString('utf8') // 强制转换响应体编码
-                })
-                resolve(response.body)
-            }
+        const response = await request(options)
+        console.log('微信API响应:', {
+            status: response.statusCode,
+            body: response.body.toString('utf8') // 强制转换响应体编码
         })
-    })
+        return response.body
+    } catch (error) {
+        console.error('API请求失败:', error)
+        throw error
+    }
 }
 
 app.listen(80, () => {
     console.log('服务启动成功，编码模式:', process.env.LANG || '未指定')
 })
+
+
