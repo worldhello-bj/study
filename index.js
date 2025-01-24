@@ -7,20 +7,20 @@ app.use(express.json())
 
 app.all('/', async (req, res) => {
     console.log('news report', req.body)
-    // ´ÓheaderÖĞÈ¡appid£¬Èç¹ûfrom-appid²»´æÔÚ£¬Ôò²»ÊÇ×ÊÔ´¸´ÓÃ³¡¾°£¬¿ÉÒÔÖ±½Ó´«¿Õ×Ö·û´®£¬Ê¹ÓÃ»·¾³ËùÊôÕËºÅ·¢ÆğÔÆµ÷ÓÃ
+    // ä»headerä¸­å–appidï¼Œå¦‚æœfrom-appidä¸å­˜åœ¨ï¼Œåˆ™ä¸æ˜¯èµ„æºå¤ç”¨åœºæ™¯ï¼Œå¯ä»¥ç›´æ¥ä¼ ç©ºå­—ç¬¦ä¸²ï¼Œä½¿ç”¨ç¯å¢ƒæ‰€å±è´¦å·å‘èµ·äº‘è°ƒç”¨
     const appid = req.headers['x-wx-from-appid'] || ''
     const { ToUserName, FromUserName, MsgType, Content, CreateTime } = req.body
-    console.log('ÍÆËÍ½ÓÊÕµÄÕËºÅ', ToUserName, '´´½¨Ê±¼ä', CreateTime)
+    console.log('æ¨é€æ¥æ”¶çš„è´¦å·', ToUserName, 'åˆ›å»ºæ—¶é—´', CreateTime)
     if (MsgType === 'text') {
-        if (Content === '»Ø¸´ÎÄ×Ö') { // Ğ¡³ÌĞò¡¢¹«ÖÚºÅ¿ÉÓÃ
+        if (Content === 'å›å¤æ–‡å­—') { // å°ç¨‹åºã€å…¬ä¼—å·å¯ç”¨
             await sendmess(appid, {
                 touser: FromUserName,
                 msgtype: 'text',
                 text: {
-                    content: 'ÕâÊÇ»Ø¸´µÄÏûÏ¢'
+                    content: 'hello'
                 }
             })
-        } else if (Content === '»Ø¸´Í¼Æ¬') { // Ğ¡³ÌĞò¡¢¹«ÖÚºÅ¿ÉÓÃ
+        } else if (Content === 'å›å¤å›¾ç‰‡') { // å°ç¨‹åºã€å…¬ä¼—å·å¯ç”¨
             await sendmess(appid, {
                 touser: FromUserName,
                 msgtype: 'image',
@@ -28,7 +28,7 @@ app.all('/', async (req, res) => {
                     media_id: 'P-hoCzCgrhBsrvBZIZT3jx1M08WeCCHf-th05M4nac9TQO8XmJc5uc0VloZF7XKI'
                 }
             })
-        } else if (Content === '»Ø¸´ÓïÒô') { // ½ö¹«ÖÚºÅ¿ÉÓÃ
+        } else if (Content === 'å›å¤è¯­éŸ³') { // ä»…å…¬ä¼—å·å¯ç”¨
             await sendmess(appid, {
                 touser: FromUserName,
                 msgtype: 'voice',
@@ -36,46 +36,46 @@ app.all('/', async (req, res) => {
                     media_id: '06JVovlqL4v3DJSQTwas1QPIS-nlBlnEFF-rdu03k0dA9a_z6hqel3SCvoYrPZzp'
                 }
             })
-        } else if (Content === '»Ø¸´ÊÓÆµ') {  // ½ö¹«ÖÚºÅ¿ÉÓÃ
+        } else if (Content === 'å›å¤è§†é¢‘') {  // ä»…å…¬ä¼—å·å¯ç”¨
             await sendmess(appid, {
                 touser: FromUserName,
                 msgtype: 'video',
                 video: {
                     media_id: 'XrfwjfAMf820PzHu9s5GYsvb3etWmR6sC6tTH2H1b3VPRDedW-4igtt6jqYSBxJ2',
-                    title: 'Î¢ĞÅÔÆÍĞ¹Ü¹Ù·½½Ì³Ì',
-                    description: 'Î¢ĞÅ¹Ù·½ÍÅ¶Ó´òÔì£¬Ìù½üÒµÎñ³¡¾°µÄÊµÕ½½ÌÑ§'
+                    title: 'å¾®ä¿¡äº‘æ‰˜ç®¡å®˜æ–¹æ•™ç¨‹',
+                    description: 'å¾®ä¿¡å®˜æ–¹å›¢é˜Ÿæ‰“é€ ï¼Œè´´è¿‘ä¸šåŠ¡åœºæ™¯çš„å®æˆ˜æ•™å­¦'
                 }
             })
-        } else if (Content === '»Ø¸´ÒôÀÖ') {  // ½ö¹«ÖÚºÅ¿ÉÓÃ
+        } else if (Content === 'å›å¤éŸ³ä¹') {  // ä»…å…¬ä¼—å·å¯ç”¨
             await sendmess(appid, {
                 touser: FromUserName,
                 msgtype: 'music',
                 music: {
-                    title: 'Relax£ü½ñÈÕÍÆ¼öÒôÀÖ',
-                    description: 'Ã¿ÈÕÍÆ¼öÒ»¸öºÃÌıµÄÒôÀÖ£¬¸ĞĞ»ÊÕÌı¡«',
+                    title: 'Relaxï½œä»Šæ—¥æ¨èéŸ³ä¹',
+                    description: 'æ¯æ—¥æ¨èä¸€ä¸ªå¥½å¬çš„éŸ³ä¹ï¼Œæ„Ÿè°¢æ”¶å¬ï½',
                     music_url: 'https://c.y.qq.com/base/fcgi-bin/u?__=0zVuus4U',
                     HQ_music_url: 'https://c.y.qq.com/base/fcgi-bin/u?__=0zVuus4U',
                     thumb_media_id: 'XrfwjfAMf820PzHu9s5GYgOJbfbnoUucToD7A5HFbBM6_nU6TzR4EGkCFTTHLo0t'
                 }
             })
-        } else if (Content === '»Ø¸´Í¼ÎÄ') {  // Ğ¡³ÌĞò¡¢¹«ÖÚºÅ¿ÉÓÃ
+        } else if (Content === 'å›å¤å›¾æ–‡') {  // å°ç¨‹åºã€å…¬ä¼—å·å¯ç”¨
             await sendmess(appid, {
                 touser: FromUserName,
                 msgtype: 'link',
                 link: {
-                    title: 'Relax£ü½ñÈÕÍÆ¼öÒôÀÖ',
-                    description: 'Ã¿ÈÕÍÆ¼öÒ»¸öºÃÌıµÄÒôÀÖ£¬¸ĞĞ»ÊÕÌı¡«',
-                    thumb_url: 'https://y.qq.com/music/photo_new/T002R300x300M000004NEn9X0y2W3u_1.jpg?max_age=2592000', // Ö§³ÖJPG¡¢PNG¸ñÊ½£¬½ÏºÃµÄĞ§¹ûÎª´óÍ¼360*200£¬Ğ¡Í¼200*200
+                    title: 'Relaxï½œä»Šæ—¥æ¨èéŸ³ä¹',
+                    description: 'æ¯æ—¥æ¨èä¸€ä¸ªå¥½å¬çš„éŸ³ä¹ï¼Œæ„Ÿè°¢æ”¶å¬ï½',
+                    thumb_url: 'https://y.qq.com/music/photo_new/T002R300x300M000004NEn9X0y2W3u_1.jpg?max_age=2592000', // æ”¯æŒJPGã€PNGæ ¼å¼ï¼Œè¾ƒå¥½çš„æ•ˆæœä¸ºå¤§å›¾360*200ï¼Œå°å›¾200*200
                     url: 'https://c.y.qq.com/base/fcgi-bin/u?__=0zVuus4U'
                 }
             })
-        } else if (Content === '»Ø¸´Ğ¡³ÌĞò') { // ½öĞ¡³ÌĞò¿ÉÓÃ
+        } else if (Content === 'å›å¤å°ç¨‹åº') { // ä»…å°ç¨‹åºå¯ç”¨
             await sendmess(appid, {
                 touser: FromUserName,
                 msgtype: 'miniprogrampage',
                 miniprogrampage: {
-                    title: 'Ğ¡³ÌĞò¿¨Æ¬±êÌâ',
-                    pagepath: 'pages/index/index', // ¸úapp.json¶ÔÆë£¬Ö§³Ö²ÎÊı£¬±ÈÈçpages/index/index?foo=bar
+                    title: 'å°ç¨‹åºå¡ç‰‡æ ‡é¢˜',
+                    pagepath: 'pages/index/index', // è·Ÿapp.jsonå¯¹é½ï¼Œæ”¯æŒå‚æ•°ï¼Œæ¯”å¦‚pages/index/index?foo=bar
                     thumb_media_id: 'XrfwjfAMf820PzHu9s5GYgOJbfbnoUucToD7A5HFbBM6_nU6TzR4EGkCFTTHLo0t'
                 }
             })
