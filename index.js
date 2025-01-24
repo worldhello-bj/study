@@ -1,113 +1,110 @@
 const express = require('express')
-const request = require('request-promise-native') // 使用request-promise-native替代request
+const request = require('request')
+
 const app = express()
 
-// 强制指定请求体编码
-app.use(express.json({
-    type: 'application/json; charset=utf-8', // 显式指定JSON编码
-    verify: (req, res, buf) => {
-        req.rawBody = buf.toString('utf8') // 保留原始Buffer用于校验
-    }
-}))
-
-// 处理text类型消息（兼容微信XML格式）
-app.use(express.text({
-    type: ['text/xml', 'text/plain'],
-    defaultCharset: 'utf-8'
-}))
-
-// 通用编码处理中间件
-app.use((req, res, next) => {
-    // 设置响应头编码
-    res.setHeader('Content-Type', 'application/json; charset=utf-8')
-
-    // 日志输出强制UTF-8
-    console.log('收到原始请求体:', req.rawBody ? req.rawBody : '')
-    console.log('解析后请求体:', JSON.stringify(req.body, null, 2))
-
-    // 转换非UTF-8编码的请求体
-    if (Buffer.isBuffer(req.body)) {
-        try {
-            req.body = JSON.parse(req.body.toString('utf8'))
-        } catch (e) {
-            console.error('编码转换失败:', e)
-        }
-    }
-    next()
-})
+app.use(express.json())
 
 app.all('/', async (req, res) => {
-    try {
-        const appid = req.headers['x-wx-from-appid'] || ''
-        const {
-            ToUserName,
-            FromUserName,
-            MsgType,
-            Content,
-            CreateTime
-        } = req.body
-
-        // 日志输出添加编码标识
-        console.log('消息编码验证:', {
-            ToUserName: ToUserName?.toString('hex'),
-            Content: Buffer.from(Content).toString('hex')
-        })
-
-        if (MsgType === 'text') {
-            const responseMap = {
-                '回复文字': {
-                    msgtype: 'text',
-                    text: { content: '正常显示的中文回复' }
-                },
-                // 其他消息类型...
-            }
-
-            if (responseMap[Content]) {
-                await sendmess(appid, {
-                    touser: FromUserName,
-                    ...responseMap[Content]
-                })
-            }
-        }
-
-        res.send('success')
-    } catch (e) {
-        console.error('处理错误:', e)
-        res.status(500).send('服务器错误')
-    }
-})
-
-// 发送消息函数添加编码处理
-async function sendmess(appid, mess) {
-    try {
-        const options = {
-            method: 'POST',
-            url: `http://api.weixin.qq.com/cgi-bin/message/custom/send?from_appid=${appid}`,
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8'
-            },
-            body: JSON.stringify(mess, (key, value) => {
-                // 处理特殊字符编码
-                return typeof value === 'string' ?
-                    value.replace(/[\u007F-\uFFFF]/g, chr => '\\u' + ('0000' + chr.charCodeAt(0).toString(16)).slice(-4))
-                    : value
+    console.log('news report', req.body)
+    // 从header中取appid，如果from-appid不存在，则不是资源复用场景，可以直接传空字符串，使用环境所属账号发起云调用
+    const appid = req.headers['x-wx-from-appid'] || ''
+    const { ToUserName, FromUserName, MsgType, Content, CreateTime } = req.body
+    console.log('推送接收的账号', ToUserName, '创建时间', CreateTime)
+    if (MsgType === 'text') {
+        if (Content === '回复文字') { // 小程序、公众号可用
+            await sendmess(appid, {
+                touser: FromUserName,
+                msgtype: 'text',
+                text: {
+                    content: '这是回复的消息'
+                }
+            })
+        } else if (Content === '回复图片') { // 小程序、公众号可用
+            await sendmess(appid, {
+                touser: FromUserName,
+                msgtype: 'image',
+                image: {
+                    media_id: 'P-hoCzCgrhBsrvBZIZT3jx1M08WeCCHf-th05M4nac9TQO8XmJc5uc0VloZF7XKI'
+                }
+            })
+        } else if (Content === '回复语音') { // 仅公众号可用
+            await sendmess(appid, {
+                touser: FromUserName,
+                msgtype: 'voice',
+                voice: {
+                    media_id: '06JVovlqL4v3DJSQTwas1QPIS-nlBlnEFF-rdu03k0dA9a_z6hqel3SCvoYrPZzp'
+                }
+            })
+        } else if (Content === '回复视频') {  // 仅公众号可用
+            await sendmess(appid, {
+                touser: FromUserName,
+                msgtype: 'video',
+                video: {
+                    media_id: 'XrfwjfAMf820PzHu9s5GYsvb3etWmR6sC6tTH2H1b3VPRDedW-4igtt6jqYSBxJ2',
+                    title: '微信云托管官方教程',
+                    description: '微信官方团队打造，贴近业务场景的实战教学'
+                }
+            })
+        } else if (Content === '回复音乐') {  // 仅公众号可用
+            await sendmess(appid, {
+                touser: FromUserName,
+                msgtype: 'music',
+                music: {
+                    title: 'Relax｜今日推荐音乐',
+                    description: '每日推荐一个好听的音乐，感谢收听～',
+                    music_url: 'https://c.y.qq.com/base/fcgi-bin/u?__=0zVuus4U',
+                    HQ_music_url: 'https://c.y.qq.com/base/fcgi-bin/u?__=0zVuus4U',
+                    thumb_media_id: 'XrfwjfAMf820PzHu9s5GYgOJbfbnoUucToD7A5HFbBM6_nU6TzR4EGkCFTTHLo0t'
+                }
+            })
+        } else if (Content === '回复图文') {  // 小程序、公众号可用
+            await sendmess(appid, {
+                touser: FromUserName,
+                msgtype: 'link',
+                link: {
+                    title: 'Relax｜今日推荐音乐',
+                    description: '每日推荐一个好听的音乐，感谢收听～',
+                    thumb_url: 'https://y.qq.com/music/photo_new/T002R300x300M000004NEn9X0y2W3u_1.jpg?max_age=2592000', // 支持JPG、PNG格式，较好的效果为大图360*200，小图200*200
+                    url: 'https://c.y.qq.com/base/fcgi-bin/u?__=0zVuus4U'
+                }
+            })
+        } else if (Content === '回复小程序') { // 仅小程序可用
+            await sendmess(appid, {
+                touser: FromUserName,
+                msgtype: 'miniprogrampage',
+                miniprogrampage: {
+                    title: '小程序卡片标题',
+                    pagepath: 'pages/index/index', // 跟app.json对齐，支持参数，比如pages/index/index?foo=bar
+                    thumb_media_id: 'XrfwjfAMf820PzHu9s5GYgOJbfbnoUucToD7A5HFbBM6_nU6TzR4EGkCFTTHLo0t'
+                }
             })
         }
-
-        const response = await request(options)
-        console.log('微信API响应:', {
-            status: response.statusCode,
-            body: response.body.toString('utf8') // 强制转换响应体编码
-        })
-        return response.body
-    } catch (error) {
-        console.error('API请求失败:', error)
-        throw error
+        res.send('success')
+    } else {
+        res.send('success')
     }
-}
-
-app.listen(80, () => {
-    console.log('服务启动成功，编码模式:', process.env.LANG || '未指定')
 })
 
+app.listen(80, function () {
+    console.log('service starts!')
+})
+
+function sendmess(appid, mess) {
+    return new Promise((resolve, reject) => {
+        request({
+            method: 'POST',
+            url: `http://api.weixin.qq.com/cgi-bin/message/custom/send?from_appid=${appid}`,
+            body: JSON.stringify(mess)
+        }, function (error, response) {
+            if (error) {
+                console.log('channels report wrong', error)
+                reject(error.toString())
+            } else {
+                console.log('channels report', response.body)
+                resolve(response.body)
+            }
+        })
+    })
+}
 
