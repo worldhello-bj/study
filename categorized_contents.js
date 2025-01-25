@@ -2,7 +2,7 @@ const fs = require('fs');
 
 function categorizeContent(contents) {
     const categories = {};
-    const pattern = /^(.*´óÑ§)/;
+    const pattern = /^(.*å¤§å­¦)/;
 
     contents.forEach(content => {
         const firstLine = content.split('\n')[0];
@@ -27,5 +27,9 @@ if (require.main === module) {
     const contents = JSON.parse(process.argv[2]);
     const categorizedContents = categorizeContent(contents);
     saveToFile(categorizedContents, 'categorized_contents.json');
-    console.log("·ÖÀà½á¹ûÒÑ±£´æµ½ categorized_contents.json ÎÄ¼şÖĞ");
+    console.log("åˆ†ç±»ç»“æœå·²ä¿å­˜åˆ° categorized_contents.json æ–‡ä»¶ä¸­");
 }// JavaScript source code
+module.exports = {
+  categorizeContent,
+  saveToFile
+};
