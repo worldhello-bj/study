@@ -4,6 +4,7 @@ FROM node:16-bullseye-slim
 # 安装系统依赖（包含 ca-certificates）
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates && \
+
     rm -rf /var/lib/apt/lists/*
 
 # 设置工作目录
@@ -13,6 +14,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm config set registry https://mirrors.tencent.com/npm/ && \
     npm install
+    npm install @cloudbase/node-sdk
 
 # 复制应用代码
 COPY . .
