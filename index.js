@@ -2,11 +2,19 @@ const express = require('express')
 const request = require('request')
 const { exec } = require('child_process')
 const fs = require('fs')
-const { categorizeContent, saveToFile } = require('./categorized_contents')
+const { categorizeContent } = require('./categorized_contents')
+const cloudbase = require('@cloudbase/node-sdk')  // 新增
 
 const app = express()
 
 app.use(express.json())
+
+// 初始化云开发环境
+const cloudApp = cloudbase.init({
+    env: 'prod-9gevk8v3e303306e'  // 请替换为您的云开发环境 ID
+})
+
+const db = cloudApp.database()
 
 app.all('/', async (req, res) => {
     console.log('news report', req.body)
@@ -27,8 +35,15 @@ app.all('/', async (req, res) => {
 
         const contents = [Content];
         const categorizedContents = categorizeContent(contents);
-        saveToFile(categorizedContents, 'categorized_contents.json');
-        console.log("分类结果已保存到 categorized_contents.json 文件中");
+
+        // 保存分类结果到微信数据库
+        db.collection('categorized_contents').add(categorizedContents)
+            .then(res => {
+                console.log("分类结果已保存到微信数据库中", res);
+            })
+            .catch(err => {
+                console.error("保存到微信数据库时出错", err);
+            });
 
         res.send('success')
     } else {
@@ -57,4 +72,5 @@ function sendmess(appid, mess) {
         })
     })
 }
+
 
