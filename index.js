@@ -2,6 +2,7 @@ const express = require('express')
 const request = require('request')
 const { exec } = require('child_process')
 const fs = require('fs')
+const { categorizeContent, saveToFile } = require('./categorized_contents')
 
 const app = express()
 
@@ -11,10 +12,10 @@ app.all('/', async (req, res) => {
     console.log('news report', req.body)
     const appid = req.headers['x-wx-from-appid'] || ''
     const { ToUserName, FromUserName, MsgType, Content, CreateTime } = req.body
-    console.log('ÍÆËÍ½ÓÊÕµÄÕËºÅ', ToUserName, '´´½¨Ê±¼ä', CreateTime)
+    console.log('æ¨é€æ¥æ”¶çš„è´¦å·', ToUserName, 'åˆ›å»ºæ—¶é—´', CreateTime)
 
     if (MsgType === 'text') {
-        if (Content === '»Ø¸´ÎÄ×Ö') {
+        if (Content === 'å›å¤æ–‡å­—') {
             await sendmess(appid, {
                 touser: FromUserName,
                 msgtype: 'text',
@@ -27,7 +28,7 @@ app.all('/', async (req, res) => {
         const contents = [Content];
         const categorizedContents = categorizeContent(contents);
         saveToFile(categorizedContents, 'categorized_contents.json');
-        console.log("·ÖÀà½á¹ûÒÑ±£´æµ½ categorized_contents.json ÎÄ¼şÖĞ");
+        console.log("åˆ†ç±»ç»“æœå·²ä¿å­˜åˆ° categorized_contents.json æ–‡ä»¶ä¸­");
 
         res.send('success')
     } else {
@@ -56,3 +57,4 @@ function sendmess(appid, mess) {
         })
     })
 }
+
