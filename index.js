@@ -12,7 +12,7 @@ const cloudApp = cloudbase.init({
     env: 'prod-9gevk8v3e303306e'  // 请替换为您的云开发环境 ID
 })
 
-const db = cloudApp.database()
+const db = cloudApp.database();
 const storage = cloudApp.storage;
 
 app.all('/', async (req, res) => {
