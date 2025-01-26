@@ -13,7 +13,7 @@ const cloudApp = cloudbase.init({
 })
 
 const db = cloudApp.database()
-const storage = cloudApp.storage；
+const storage = cloudApp.storage;
 
 app.all('/', async (req, res) => {
     console.log('news report', req.body)
