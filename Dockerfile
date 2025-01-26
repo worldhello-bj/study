@@ -1,23 +1,24 @@
-# Ê¹ÓÃ¸üĞÂµÄ»ù´¡¾µÏñ£¨Debian 11£©
+# ä½¿ç”¨æ›´æ–°çš„åŸºç¡€é•œåƒï¼ŒåŸºäºDebian 11
 FROM node:16-bullseye-slim
 
-# °²×°ÏµÍ³ÒÀÀµ£¨°üº¬ ca-certificates£©
+# å®‰è£…ç³»ç»Ÿä¾èµ–å’Œ ca-certificates
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates && \
-
     rm -rf /var/lib/apt/lists/*
 
-# ÉèÖÃ¹¤×÷Ä¿Â¼
+# è®¾ç½®å·¥ä½œç›®å½•
 WORKDIR /usr/src/app
 
-# ¸´ÖÆÒÀÀµÎÄ¼ş²¢°²×°
+# å¤åˆ¶ä¾èµ–æ–‡ä»¶å¹¶å®‰è£…
 COPY package*.json ./
 RUN npm config set registry https://mirrors.tencent.com/npm/ && \
     npm install
-    npm install @cloudbase/node-sdk
 
-# ¸´ÖÆÓ¦ÓÃ´úÂë
+# å¤åˆ¶æ‰€æœ‰æ–‡ä»¶åˆ°å·¥ä½œç›®å½•
 COPY . .
 
-# Æô¶¯ÃüÁî
+# æš´éœ²ç«¯å£
+EXPOSE 80
+
+# å¯åŠ¨åº”ç”¨
 CMD ["node", "index.js"]
