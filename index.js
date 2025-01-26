@@ -1,12 +1,19 @@
 const express = require('express')
 const request = require('request')
-const { exec } = require('child_process')
 const fs = require('fs')
-const { categorizeContent, saveToFile } = require('./categorized_contents')
-
+const { categorizeContent } = require('./categorized_contents')
+const cloudbase = require('@cloudbase/node-sdk')
 const app = express()
 
 app.use(express.json())
+
+// 初始化云开发环境
+const cloudApp = cloudbase.init({
+    env: 'prod-9gevk8v3e303306e'  // 请替换为您的云开发环境 ID
+})
+
+const db = cloudApp.database()
+const storage = cloudApp.storage()
 
 app.all('/', async (req, res) => {
     console.log('news report', req.body)
@@ -25,10 +32,27 @@ app.all('/', async (req, res) => {
             })
         }
 
-        const contents = [Content];
-        const categorizedContents = categorizeContent(contents);
-        saveToFile(categorizedContents, 'categorized_contents.json');
-        console.log("分类结果已保存到 categorized_contents.json 文件中");
+        const contents = [Content]
+        const categorizedContents = categorizeContent(contents)
+
+        // 保存分类结果到微信数据库
+        db.collection('categorized_contents').add(categorizedContents)
+            .then(res => {
+                console.log("分类结果已保存到微信数据库中", res)
+            })
+            .catch(err => {
+                console.error("保存到微信数据库时出错", err)
+            })
+
+        // 保存文件到云存储
+        const filePath = '/tmp/categorized_contents.json'
+        fs.writeFileSync(filePath, JSON.stringify(categorizedContents, null, 4), 'utf-8')
+        const result = await storage.uploadFile({
+            cloudPath: 'categorized_contents.json',
+            fileContent: fs.createReadStream(filePath)
+        })
+
+        console.log('文件已保存到云存储', result.fileID)
 
         res.send('success')
     } else {
@@ -57,4 +81,3 @@ function sendmess(appid, mess) {
         })
     })
 }
-
