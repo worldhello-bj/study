@@ -20,7 +20,7 @@ WORKDIR /usr/src/app
 # 复制依赖文件并安装
 COPY package*.json ./
 RUN npm config set registry https://mirrors.tencent.com/npm/ && \
-    npm install 
+    npm install --production
 
 # 复制所有文件到工作目录
 COPY . .
