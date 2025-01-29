@@ -9,7 +9,7 @@
     "dependencies": {
         "express": "^4.16.4",
         "request": "^2.88.2",
-        "mysql2": "^3.6.0"  // 新增
+        "mysql2": "^3.6.0"  
 
     },
     "devDependencies": {
