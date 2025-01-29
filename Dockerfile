@@ -1,3 +1,6 @@
+请尝试以下修改，使用 `npm install` 而不是 `npm ci`：
+
+```dockerfile
 # 使用更新的基础镜像，基于 Debian 11
 FROM node:16-bullseye-slim
 
@@ -20,7 +23,7 @@ WORKDIR /usr/src/app
 # 复制依赖文件并安装
 COPY package*.json ./
 RUN npm config set registry https://mirrors.tencent.com/npm/ && \
-    npm ci
+    npm install
 
 # 复制所有文件到工作目录
 COPY . .
