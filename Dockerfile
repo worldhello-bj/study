@@ -1,4 +1,3 @@
-
 # 使用更新的基础镜像，基于 Debian 11
 FROM node:16-bullseye-slim
 
@@ -9,10 +8,8 @@ RUN apt-get update && \
     python3 \
     make \
     g++ \
-    # 安装其他可能的依赖（如 OpenSSL 开发包）
     openssl \
     libssl-dev && \
-    # 清理缓存
     rm -rf /var/lib/apt/lists/*
 
 # 设置工作目录
