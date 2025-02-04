@@ -23,15 +23,73 @@ app.all('/', async (req, res) => {
   const appid = req.headers['x-wx-from-appid'] || '';
   const { ToUserName, FromUserName, MsgType, Content, CreateTime } = req.body;
 
-  if (MsgType === 'text') {
-    // 1. 处理关键词回复（保留原有逻辑）
-    if (Content === '回复文字') {
-      await sendmess(appid, {
-        touser: FromUserName,
-        msgtype: 'text',
-        text: { content: 'hello' }
-      });
+  app.all('/', verifySignature, async (req, res) => {
+  console.log('收到消息:', req.body);
+  const appid = req.headers['x-wx-from-appid'] || '';
+  const { ToUserName, FromUserName, MsgType, Content } = req.body;
+
+  // 立即响应微信服务器
+  res.send('success');
+
+ if (MsgType === 'text') {
+    // 异步处理业务逻辑
+    try {
+      // 1. 处理关键词回复
+      if (Content === '回复文字') {
+        await sendmess(appid, {
+          touser: FromUserName,
+          msgtype: 'text',
+          text: { content: 'hello' }
+        });
+        return;
+      }
+
+      // 2. 查询大学信息
+      const [uniCheck] = await pool.execute(
+        'SELECT 1 FROM categorized_contents WHERE university = ? LIMIT 1',
+        [Content]
+      );
+
+      if (uniCheck.length > 0) {
+        // 3. 找到对应大学，返回所有内容
+        const [contents] = await pool.execute(
+          'SELECT content FROM categorized_contents WHERE university = ?',
+          [Content]
+        );
+        
+        const replyText = contents.length > 0 
+          ? `${Content}相关内容：\n${contents.map(c => `· ${c.content}`).join('\n')}`
+          : `暂时没有${Content}的相关内容`;
+
+        await sendmess(appid, {
+          touser: FromUserName,
+          msgtype: 'text',
+          text: { content: replyText }
+        });
+      } else {
+        // 4. 未找到大学，执行分类存储
+        const categorizedContents = categorizeContent([Content]);
+        const insertValues = [];
+        
+        for (const [university, contentsList] of Object.entries(categorizedContents)) {
+          contentsList.forEach(content => {
+            insertValues.push([university, content]);
+          });
+        }
+
+        if (insertValues.length > 0) {
+          await pool.query(
+            'INSERT INTO categorized_contents (university, content) VALUES ?',
+            [insertValues]
+          );
+          console.log(`新增${insertValues.length}条分类内容`);
+        }
+      }
+    } catch (err) {
+      console.error('消息处理异常:', err);
     }
+  }
+});
 
     // 2. 分类内容（保留原有逻辑）
     const contents = [Content];
