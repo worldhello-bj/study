@@ -18,12 +18,9 @@ const pool = mysql.createPool({
 
 app.use(express.json());
 
-app.all('/', async (req, res) => {
-  console.log('收到消息:', req.body);
-  const appid = req.headers['x-wx-from-appid'] || '';
-  const { ToUserName, FromUserName, MsgType, Content, CreateTime } = req.body;
 
-  app.all('/', verifySignature, async (req, res) => {
+
+app.all('/', verifySignature, async (req, res) => {
   console.log('收到消息:', req.body);
   const appid = req.headers['x-wx-from-appid'] || '';
   const { ToUserName, FromUserName, MsgType, Content } = req.body;
@@ -31,7 +28,7 @@ app.all('/', async (req, res) => {
   // 立即响应微信服务器
   res.send('success');
 
- if (MsgType === 'text') {
+  if (MsgType === 'text') {
     // 异步处理业务逻辑
     try {
       // 1. 处理关键词回复
