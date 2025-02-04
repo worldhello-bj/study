@@ -88,9 +88,6 @@ app.all('/', verifySignature, async (req, res) => {
   }
 });
 
-    // 2. 分类内容（保留原有逻辑）
-    const contents = [Content];
-    const categorizedContents = categorizeContent(contents);
 
     // 3. 保存到 MySQL（替换原有云开发逻辑）
     try {
