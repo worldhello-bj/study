@@ -30,9 +30,7 @@ app.all('/', async (req, res) => {
     // 异步处理业务逻辑
     try {
       if (Content.startsWith('我要爆料')) {
-        const university = Content.replace('我要爆料', '').trim();
-        // 分类存储
-        const categorizedContents = categorizeContent([university]);
+        const categorizedContents = categorizeContent([Content]);
         const insertValues = [];
 
         for (const [university, contentsList] of Object.entries(categorizedContents)) {
@@ -50,7 +48,7 @@ app.all('/', async (req, res) => {
           await sendmess(appid, {
             touser: FromUserName,
             msgtype: 'text',
-            text: { content: `感谢您的爆料，${university}的内容已保存。` }
+            text: { content: `感谢您的爆料，内容已保存。` }
           });
         } else {
           // 预留接口未来使用
