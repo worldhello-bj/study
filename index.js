@@ -114,7 +114,7 @@ app.listen(80, () => {
 });
 
 // 保留原有发送消息函数
-function sendmess(appid, mess) {
+async function sendmess(appid, mess) {
   return new Promise((resolve, reject) => {
     request({
       method: 'POST',
