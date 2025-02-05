@@ -52,6 +52,13 @@ app.all('/', async (req, res) => {
             msgtype: 'text',
             text: { content: `感谢您的爆料，${university}的内容已保存。` }
           });
+        } else {
+          // 预留接口未来使用
+          await sendmess(appid, {
+            touser: FromUserName,
+            msgtype: 'text',
+            text: { content: `未能识别您的爆料内容，请检查格式。` }
+          });
         }
       } else if (Content.startsWith('我想了解')) {
         const university = Content.replace('我想了解', '').trim();
@@ -84,6 +91,13 @@ app.all('/', async (req, res) => {
             text: { content: `暂时没有${university}的相关内容` }
           });
         }
+      } else {
+        // 预留接口未来使用
+        await sendmess(appid, {
+          touser: FromUserName,
+          msgtype: 'text',
+          text: { content: `未能识别您的消息内容，请检查格式。` }
+        });
       }
     } catch (err) {
       console.error('消息处理异常:', err);
