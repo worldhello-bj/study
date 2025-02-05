@@ -29,7 +29,9 @@ app.all('/', async (req, res) => {
   if (MsgType === 'text') {
     // 异步处理业务逻辑
     try {
+      console.log('处理文本消息:', Content);
       if (Content.startsWith('我要爆料')) {
+        console.log('开始分类处理爆料内容');
         const categorizedContents = categorizeContent([Content]);
         const insertValues = [];
 
@@ -51,7 +53,7 @@ app.all('/', async (req, res) => {
             text: { content: `感谢您的爆料，内容已保存。` }
           });
         } else {
-          // 预留接口未来使用
+          console.log('未能识别爆料内容');
           await sendmess(appid, {
             touser: FromUserName,
             msgtype: 'text',
@@ -59,6 +61,7 @@ app.all('/', async (req, res) => {
           });
         }
       } else if (Content.startsWith('我想了解')) {
+        console.log('开始处理了解请求');
         const university = Content.replace('我想了解', '').trim();
         // 查询大学信息
         const [uniCheck] = await pool.execute(
@@ -67,6 +70,7 @@ app.all('/', async (req, res) => {
         );
 
         if (uniCheck.length > 0) {
+          console.log(`找到${university}的信息`);
           // 找到对应大学，返回所有内容
           const [contents] = await pool.execute(
             'SELECT content FROM categorized_contents WHERE university = ?',
@@ -83,6 +87,7 @@ app.all('/', async (req, res) => {
             text: { content: replyText }
           });
         } else {
+          console.log(`未找到${university}的信息`);
           await sendmess(appid, {
             touser: FromUserName,
             msgtype: 'text',
@@ -90,6 +95,7 @@ app.all('/', async (req, res) => {
           });
         }
       } else {
+        console.log('未能识别的信息类型');
         // 预留接口未来使用
         await sendmess(appid, {
           touser: FromUserName,
