@@ -18,9 +18,7 @@ const pool = mysql.createPool({
 
 app.use(express.json());
 
-
-
-app.all('/', verifySignature, async (req, res) => {
+app.all('/', async (req, res) => {
   console.log('收到消息:', req.body);
   const appid = req.headers['x-wx-from-appid'] || '';
   const { ToUserName, FromUserName, MsgType, Content } = req.body;
@@ -31,43 +29,12 @@ app.all('/', verifySignature, async (req, res) => {
   if (MsgType === 'text') {
     // 异步处理业务逻辑
     try {
-      // 1. 处理关键词回复
-      if (Content === '回复文字') {
-        await sendmess(appid, {
-          touser: FromUserName,
-          msgtype: 'text',
-          text: { content: 'hello' }
-        });
-        return;
-      }
-
-      // 2. 查询大学信息
-      const [uniCheck] = await pool.execute(
-        'SELECT 1 FROM categorized_contents WHERE university = ? LIMIT 1',
-        [Content]
-      );
-
-      if (uniCheck.length > 0) {
-        // 3. 找到对应大学，返回所有内容
-        const [contents] = await pool.execute(
-          'SELECT content FROM categorized_contents WHERE university = ?',
-          [Content]
-        );
-        
-        const replyText = contents.length > 0 
-          ? `${Content}相关内容：\n${contents.map(c => `· ${c.content}`).join('\n')}`
-          : `暂时没有${Content}的相关内容`;
-
-        await sendmess(appid, {
-          touser: FromUserName,
-          msgtype: 'text',
-          text: { content: replyText }
-        });
-      } else {
-        // 4. 未找到大学，执行分类存储
-        const categorizedContents = categorizeContent([Content]);
+      if (Content.startsWith('我要爆料')) {
+        const university = Content.replace('我要爆料', '').trim();
+        // 分类存储
+        const categorizedContents = categorizeContent([university]);
         const insertValues = [];
-        
+
         for (const [university, contentsList] of Object.entries(categorizedContents)) {
           contentsList.forEach(content => {
             insertValues.push([university, content]);
@@ -80,33 +47,47 @@ app.all('/', verifySignature, async (req, res) => {
             [insertValues]
           );
           console.log(`新增${insertValues.length}条分类内容`);
+          await sendmess(appid, {
+            touser: FromUserName,
+            msgtype: 'text',
+            text: { content: `感谢您的爆料，${university}的内容已保存。` }
+          });
+        }
+      } else if (Content.startsWith('我想了解')) {
+        const university = Content.replace('我想了解', '').trim();
+        // 查询大学信息
+        const [uniCheck] = await pool.execute(
+          'SELECT 1 FROM categorized_contents WHERE university = ? LIMIT 1',
+          [university]
+        );
+
+        if (uniCheck.length > 0) {
+          // 找到对应大学，返回所有内容
+          const [contents] = await pool.execute(
+            'SELECT content FROM categorized_contents WHERE university = ?',
+            [university]
+          );
+
+          const replyText = contents.length > 0 
+            ? `${university}相关内容：\n${contents.map(c => `· ${c.content}`).join('\n')}`
+            : `暂时没有${university}的相关内容`;
+
+          await sendmess(appid, {
+            touser: FromUserName,
+            msgtype: 'text',
+            text: { content: replyText }
+          });
+        } else {
+          await sendmess(appid, {
+            touser: FromUserName,
+            msgtype: 'text',
+            text: { content: `暂时没有${university}的相关内容` }
+          });
         }
       }
     } catch (err) {
       console.error('消息处理异常:', err);
     }
-  }
-});
-
-
-    // 3. 保存到 MySQL（替换原有云开发逻辑）
-    try {
-      for (const [university, contentsList] of Object.entries(categorizedContents)) {
-        for (const content of contentsList) {
-          await pool.execute(
-            'INSERT INTO categorized_contents (university, content) VALUES (?, ?)',
-            [university, content]
-          );
-        }
-      }
-      console.log('数据已通过内网写入 MySQL');
-    } catch (err) {
-      console.error('数据库写入失败:', err);
-    }
-
-    res.send('success');
-  } else {
-    res.send('success');
   }
 });
 
