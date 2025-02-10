@@ -100,7 +100,7 @@ app.all('/', async (req, res) => {
       res.send({
         ToUserName: FromUserName,
         FromUserName: ToUserName,
-        CreateTime: CreateTime,
+        
         MsgType: 'text',
         Content: '这是回复的消息'
       });
