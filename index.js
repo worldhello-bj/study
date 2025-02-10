@@ -97,11 +97,13 @@ app.all('/', async (req, res) => {
       } else {
         console.log('未能识别的信息类型');
         // 预留接口未来使用
-        await sendmess(appid, {
-          touser: FromUserName,
-          msgtype: 'text',
-          text: { content: `未能识别您的消息内容，请检查格式。` }
-        });
+      res.send({
+        ToUserName: FromUserName,
+        FromUserName: ToUserName,
+        CreateTime: CreateTime,
+        MsgType: 'text',
+        Content: '这是回复的消息'
+      });
       }
     } catch (err) {
       console.error('消息处理异常:', err);
