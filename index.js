@@ -28,6 +28,7 @@ app.all('/', async (req, res) => {
   const { ToUserName, FromUserName, MsgType, Content } = req.body;
 
   // 立即响应微信服务器
+  //res.send('success')
  
 
   if (MsgType === 'text') {
