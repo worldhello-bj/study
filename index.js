@@ -1,5 +1,6 @@
 const express = require('express');
 const request = require('request');
+const bodyParser = require('body-parser');
 const { categorizeContent } = require('./categorized_contents');
 const mysql = require('mysql2/promise'); // 引入 MySQL 驱动
 const app = express();
@@ -17,6 +18,9 @@ const pool = mysql.createPool({
 });
 
 app.use(express.json());
+app.use(bodyParser.raw());
+app.use(bodyParser.json({}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.all('/', async (req, res) => {
   console.log('收到消息:', req.body);
