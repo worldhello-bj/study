@@ -52,18 +52,22 @@ app.all('/', async (req, res) => {
             [insertValues]
           );
           console.log(`新增${insertValues.length}条分类内容`);
-          await sendmess(appid, {
-            touser: FromUserName,
-            msgtype: 'text',
-            text: { content: `感谢您的爆料，内容已保存。` }
-          });
+            res.send({
+                ToUserName: FromUserName,
+                FromUserName: ToUserName,
+                CreateTime: CreateTime,
+                MsgType: 'text',
+                Content: '感谢你的爆料，内容已保存'
+            });
         } else {
           console.log('未能识别爆料内容');
-          await sendmess(appid, {
-            touser: FromUserName,
-            msgtype: 'text',
-            text: { content: `未能识别您的爆料内容，请检查格式。` }
-          });
+            res.send({
+                ToUserName: FromUserName,
+                FromUserName: ToUserName,
+                CreateTime: CreateTime,
+                MsgType: 'text',
+                Content: '未能识别爆料内容'
+            });
         }
       } else if (Content.startsWith('我想了解')) {
         console.log('开始处理了解请求');
@@ -86,28 +90,32 @@ app.all('/', async (req, res) => {
             ? `${university}相关内容：\n${contents.map(c => `· ${c.content}`).join('\n')}`
             : `暂时没有${university}的相关内容`;
 
-          await sendmess(appid, {
-            touser: FromUserName,
-            msgtype: 'text',
-            text: { content: replyText }
+          res.send({
+                ToUserName: FromUserName,
+                FromUserName: ToUserName,
+                CreateTime: CreateTime,
+                msgtype: 'text',
+                content: replyText 
           });
         } else {
           console.log(`未找到${university}的信息`);
-          await sendmess(appid, {
-            touser: FromUserName,
-            msgtype: 'text',
-            text: { content: `暂时没有${university}的相关内容` }
-          });
+            res.send({
+                ToUserName: FromUserName,
+                FromUserName: ToUserName,
+                CreateTime: CreateTime,
+                MsgType: 'text',
+                Content: '暂时没有该大学的内容'
+            });
         }
       } else {
         console.log('未能识别的信息类型');
         // 预留接口未来使用
-      res.send({
-        ToUserName: FromUserName,
-        FromUserName: ToUserName,
-        CreateTime: CreateTime,
-        MsgType: 'text',
-        Content: '这是回复的消息'
+        res.send({
+            ToUserName: FromUserName,
+            FromUserName: ToUserName,
+            CreateTime: CreateTime,
+            MsgType: 'text',
+            Content: '暂不支持识别您的信息'
       });
       }
     } catch (err) {
