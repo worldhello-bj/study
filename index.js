@@ -94,8 +94,8 @@ app.all('/', async (req, res) => {
                 ToUserName: FromUserName,
                 FromUserName: ToUserName,
                 CreateTime: CreateTime,
-                msgtype: 'text',
-                content: replyText 
+                MsgType: 'text', // 修正为 MsgType
+                Content: replyText // 修正为 Content
           });
         } else {
           console.log(`未找到${university}的信息`);
