@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.all('/', async (req, res) => {
   console.log('收到消息:', req.body);
   const appid = req.headers['x-wx-from-appid'] || '';
-  const { ToUserName, FromUserName, MsgType, Content } = req.body;
+  const { ToUserName, FromUserName, MsgType, Content, CreateTime } = req.body;
 
   // 立即响应微信服务器
   //res.send('success')
@@ -105,7 +105,7 @@ app.all('/', async (req, res) => {
       res.send({
         ToUserName: FromUserName,
         FromUserName: ToUserName,
-        
+        CreateTime: CreateTime,
         MsgType: 'text',
         Content: '这是回复的消息'
       });
