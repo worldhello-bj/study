@@ -13,7 +13,8 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD, // 数据库密码
   database: process.env.DB_NAME, // 数据库名称
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 10000,
+   acquireTimeout: 10000,
   queueLimit: 0
 });
 
